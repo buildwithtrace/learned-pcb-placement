@@ -4,7 +4,7 @@ inspired by [karpathy/autoresearch](https://github.com/karpathy/autoresearch)
 
 ## hypothesis
 
-a graph attention network trained on short SA rollouts can learn placement heuristics that improve wirelength optimization on real PCBs, even with minimal training data (10 rollouts per board).
+a graph attention network trained on short SA rollouts can learn placement heuristics that improve wirelength optimization on KiCad PCBs, even with minimal training data (10 rollouts per board).
 
 ## experiment plan
 
@@ -40,8 +40,20 @@ a graph attention network trained on short SA rollouts can learn placement heuri
 - try TPU for boards with >50 components where attention matrix gets large
 - save results to Google Drive for persistence across sessions
 
-### phase 5: next steps (future work)
-- scrape 500+ KiCad PCBs from GitHub for transferable model
+### phase 5: constraint-aware placement (future work)
+- current cost function: HPWL + overlap + boundary — standard baseline metrics, same starting point as VLSI research
+- missing constraints that matter for production PCBs:
+  - **decoupling cap proximity**: bypass caps must be within a few mm of IC power pins. the netlist already encodes this (shared power net), the GNN graph has the signal, just not weighted for it yet
+  - **functional group clustering**: power, analog, digital, I/O sections should be coherent blocks, not interleaved
+  - **EMI/EMC separation**: noisy switching regulators far from sensitive analog, short clock traces
+  - **signal integrity**: matched-length differential pairs, controlled impedance, return paths
+  - **thermal**: power components need spacing and copper pour area
+  - **mechanical**: keep-out zones, mounting holes, connectors at board edges
+- approach: add weighted penalty terms to cost function (decoupling_distance + group_separation + EMI_penalty)
+- encode net types (power, signal, clock, ground) as edge features in the GNN graph so the network learns constraint priorities
+- scrape 500+ KiCad PCBs from GitHub for transferable model with constraint annotations
+
+### phase 6: integration and benchmarking (future work)
 - diffusion hybrid: diffusion for initial placement + GNN-guided SA refinement
 - benchmark against Cypress GPU-accelerated approach (ISPD 2025 Best Paper)
 - integrate into Trace's autoplacer pipeline

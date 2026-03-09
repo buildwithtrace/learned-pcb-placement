@@ -136,15 +136,35 @@ All serious placement research targets VLSI/ASIC. PCB placement is wide open.
 | [Component Centric Placement](https://arxiv.org/abs/2602.23540) | arXiv 2026 | PCB-specific graph representations |
 | [GNN for PCB Schematics](https://arxiv.org/abs/2502.14600) | 2025 | Auto-adding decoupling caps via graph prediction |
 
+## Current Scope
+
+The cost function today optimizes three things:
+
+- **HPWL (wirelength)** — total half-perimeter wirelength across all nets. Shorter wires mean easier routing, lower resistance, and less parasitic inductance.
+- **Overlap penalty** — components must not physically intersect. Penalized quadratically.
+- **Boundary penalty** — all components must stay within the board outline.
+
+These are the standard baseline metrics for placement research (VLSI uses the same starting point). The system does **not** yet model:
+
+- **Decoupling capacitor proximity** — bypass caps must sit within a few mm of their IC's power pins. The netlist already encodes this relationship (cap and IC share a power net), so the GNN graph contains the signal — it just isn't weighted yet.
+- **Functional group clustering** — power regulation, analog front-end, digital core, and I/O should form coherent groups. Today the placer treats all components equally.
+- **EMI/EMC separation** — noisy switching regulators should be far from sensitive analog inputs. High-speed clock traces should be short and shielded. Not modeled.
+- **Signal integrity** — matched-length differential pairs, controlled impedance, return path continuity. Not modeled.
+- **Thermal constraints** — power components need spacing and copper pour area for heat dissipation. Not modeled.
+- **Mechanical constraints** — keep-out zones, mounting holes, connector edge placement. Not modeled.
+
+The roadmap is to add these as weighted terms in the cost function (e.g., `cost = HPWL + overlap + decoupling_distance + group_separation + EMI_penalty`) and encode constraint types as edge features in the GNN graph so the network learns that some connections (power net between cap and IC) matter more than others (signal net between distant connectors).
+
 ## What's Next
 
-This is early research. The GNN learns wirelength optimization but underfits on quality prediction (R² ≈ 0.001–0.079), which is why overlap isn't resolved. The local runs used only 10 rollouts and 80 epochs — not enough signal. The path forward:
+The GNN learns wirelength optimization but underfits on quality prediction (R² ≈ 0.001–0.079), which is why overlap isn't resolved. The local runs used only 10 rollouts and 80 epochs — not enough signal. The path forward:
 
 1. **Scale training on Colab** — 50 rollouts, 200 epochs on GPU/TPU. 5x more data should address underfitting on the quality head.
 2. **Overlap-aware loss** — penalize overlap in the GNN training objective, not just in the SA cost function.
 3. **Cross-board pre-training** — train a single model on all 12 boards jointly, evaluate transfer to unseen designs.
-4. **Longer rollouts** — current rollouts are short (T: 10→2). Longer annealing gives the GNN better examples of overlap resolution.
-5. **Diffusion hybrid** — use a diffusion model for initial placement, then GNN-guided SA for refinement.
+4. **Constraint-aware cost function** — add decoupling cap proximity, functional group clustering, and EMI separation penalties. Encode net types (power, signal, clock) as edge features so the GNN learns constraint priorities.
+5. **Longer rollouts** — current rollouts are short (T: 10→2). Longer annealing gives the GNN better examples of overlap resolution.
+6. **Diffusion hybrid** — use a diffusion model for initial placement, then GNN-guided SA for refinement.
 
 ## Authors
 
