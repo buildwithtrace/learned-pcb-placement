@@ -152,30 +152,30 @@ def plot_comparison_bar(results, outdir):
 def plot_cross_board(results_list, outdir):
     """Combined bar chart across multiple boards."""
     n_boards = len(results_list)
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(max(14, n_boards * 1.2), 5.5))
 
-    bar_w = 0.2
+    bar_w = 0.25
     x = np.arange(n_boards)
     labels = [r['pcb'] for r in results_list]
 
     for offset, key, label, color in [
-        (-1.5, 'sa_baseline', 'SA (baseline)', COLORS['baseline']),
-        (-0.5, 'sa_spectral', 'SA (spectral)', COLORS['spectral']),
-        (0.5, 'sa_gnn', 'SA+GNN (ours)', COLORS['gnn']),
+        (-1, 'sa_baseline', 'SA (baseline)', COLORS['baseline']),
+        (0, 'sa_spectral', 'SA (spectral)', COLORS['spectral']),
+        (1, 'sa_gnn', 'SA+GNN (ours)', COLORS['gnn']),
     ]:
         hpwls = [r[key]['hpwl'] for r in results_list]
         costs = [r[key]['cost'] for r in results_list]
         ax1.bar(x + offset * bar_w, hpwls, bar_w, label=label, color=color, edgecolor='white')
         ax2.bar(x + offset * bar_w, costs, bar_w, label=label, color=color, edgecolor='white')
 
-    ax1.set_xticks(x)
-    ax1.set_xticklabels(labels)
+    for ax in (ax1, ax2):
+        ax.set_xticks(x)
+        ax.set_xticklabels(labels, rotation=45, ha='right', fontsize=8)
+
     ax1.set_ylabel('HPWL (mm)')
     ax1.set_title('HPWL Comparison')
     ax1.legend()
 
-    ax2.set_xticks(x)
-    ax2.set_xticklabels(labels)
     ax2.set_ylabel('Total Cost')
     ax2.set_title('Total Cost Comparison')
     ax2.legend()
