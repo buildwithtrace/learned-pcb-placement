@@ -1,0 +1,29 @@
+__pycache__/
+*.pyc
+.DS_Store
+*.egg-info/
+dist/
+build/
+.env
+
+# LaTeX build artifacts (only PDF is committed)
+paper/*.tex
+paper/*.bib
+paper/*.bbl
+paper/*.blg
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.synctex.gz
+paper/*.png
+paper/main.pdf
+
+# old baseline-only results
+results/baseline.json
+
+# editor
+.vscode/
+.idea/
+*.swp
