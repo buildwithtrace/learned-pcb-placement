@@ -73,13 +73,13 @@ Evaluated on 12 real KiCad PCBs (5–94 components) parsed directly from `.kicad
 
 ```bash
 pip install torch numpy matplotlib
-python3 learn.py data/stickhub.kicad_pcb       # single board experiment
+python3 learn.py data/stickhub.kicad_pcb       # single board, default (80 epochs, 10 rollouts)
 python3 graphs.py                                # generates all plots from results/
 ```
 
-Or run on Google Colab with GPU: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/elcruzo/learned-pcb-placement/blob/main/colab.ipynb)
+Or run scaled experiments on Google Colab (50 rollouts, 200 epochs, GPU/TPU): [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/elcruzo/learned-pcb-placement/blob/main/colab.ipynb)
 
-Requires Python 3.10+ and PyTorch with CUDA, MPS (Apple Silicon), or CPU fallback.
+Requires Python 3.10+ and PyTorch with CUDA, TPU (via torch_xla), MPS (Apple Silicon), or CPU fallback.
 
 ## Files
 
@@ -116,14 +116,22 @@ All serious placement research targets VLSI/ASIC. PCB placement is wide open.
 
 ## What's Next
 
-This is early research. The GNN learns wirelength optimization but doesn't yet resolve overlap as well as hand-tuned SA. The path forward:
+This is early research. The GNN learns wirelength optimization but underfits on quality prediction (R² ≈ 0.001–0.079), which is why overlap isn't resolved. The local runs used only 10 rollouts and 80 epochs — not enough signal. The path forward:
 
-1. **More training data** — scrape thousands of KiCad PCBs from GitHub, train a transferable model.
+1. **Scale training on Colab** — 50 rollouts, 200 epochs on GPU/TPU. 5x more data should address underfitting on the quality head.
 2. **Overlap-aware loss** — penalize overlap in the GNN training objective, not just in the SA cost function.
-3. **Longer rollouts** — current rollouts are short (T: 10→2). Longer annealing gives the GNN better examples of overlap resolution.
-4. **Diffusion hybrid** — use a diffusion model for initial placement, then GNN-guided SA for refinement.
+3. **Cross-board pre-training** — train a single model on all 12 boards jointly, evaluate transfer to unseen designs.
+4. **Longer rollouts** — current rollouts are short (T: 10→2). Longer annealing gives the GNN better examples of overlap resolution.
+5. **Diffusion hybrid** — use a diffusion model for initial placement, then GNN-guided SA for refinement.
+
+## Authors
+
+- [Ayomide Adekoya](https://github.com/elcruzo)
+- [Jeff Allo](https://github.com/jeff4444)
+- [Olu Afolabi](https://github.com/oluuafolabi)
 
 Built by [Trace](https://buildwithtrace.com) — an AI-native PCB design tool.
+Also mirrored at [buildwithtrace/learned-pcb-placement](https://github.com/buildwithtrace/learned-pcb-placement).
 
 ## License
 

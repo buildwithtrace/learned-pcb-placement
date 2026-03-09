@@ -6,7 +6,19 @@ import json, os, sys, time, math
 from placer import (parse_kicad_pcb, hpwl, overlap_cost, boundary_cost,
                     total_cost, build_adjacency, spectral_placement, sa_placement)
 
-device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+def _get_device():
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    try:
+        import torch_xla.core.xla_model as xm
+        return xm.xla_device()
+    except Exception:
+        pass
+    if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
+
+device = _get_device()
 
 class GATLayer(nn.Module):
     def __init__(self, in_dim, out_dim, heads=4):
@@ -184,7 +196,7 @@ def gnn_guided_move(model, board, adj_t, positions, T, T0, rng):
     dy = moves[i, 1].item() * scale + rng.normal(0, 0.2 * scale)
     return i, dx, dy
 
-def run_experiment(board, pcb_name):
+def run_experiment(board, pcb_name, epochs=80, rollouts_n=10):
     original = np.array([[c.x, c.y] for c in board.components])
     spec_pos = spectral_placement(board)
     adj = build_adjacency(board)
@@ -197,7 +209,7 @@ def run_experiment(board, pcb_name):
     print(f"{'='*60}")
 
     print("\n[1/4] training GNN on SA rollouts...")
-    model, train_hist = train_gnn(board, original, epochs=80, rollouts_n=10)
+    model, train_hist = train_gnn(board, original, epochs=epochs, rollouts_n=rollouts_n)
 
     print("\n[2/4] baseline SA from original positions...")
     t0 = time.time()

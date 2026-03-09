@@ -22,18 +22,28 @@ a graph attention network trained on short SA rollouts can learn placement heuri
 - cosine annealing LR, Adam, 80 epochs
 - evaluate GNN-guided SA vs baselines on HPWL, overlap, total cost
 
-### phase 3: analysis
-- key finding: GNN achieves lowest HPWL on both boards
-- stickhub: 1022.1mm HPWL vs 1125.9mm baseline (-9.2%)
-- rp2040: 1375.4mm HPWL vs 1484.4mm spectral (-7.3%)
-- trade-off: GNN has higher overlap (quality head R² is low, ~0.006-0.079)
-- acceptance rates much higher with GNN (86-99% vs 64-93%)
+### phase 3: analysis (done)
+- evaluated on 12 real-world KiCad PCBs (5–94 components)
+- GNN achieves lower HPWL on 4/12 boards (stickhub -9.2%, snapvcc -21.6%, pluto_watch -3.4%, tomu -1.4%)
+- snapvcc: GNN wins on total cost too (118.2 vs 136.5)
+- overlap remains primary bottleneck — quality head R² ≈ 0.001–0.079 across all boards
+- diagnosis: **underfitting**, not overfitting. only 10 rollouts per board gives ~10K-25K datapoints. quality signal is too sparse for the network to learn which moves improve vs degrade
+- acceptance rates 80-99% (GNN) vs 50-93% (baseline) — network proposes structurally valid moves
+- GNN works best on boards with dense netlist connectivity (stickhub, snapvcc)
 
-### phase 4: next steps (future work)
-- train transferable model on 1000+ scraped KiCad designs
-- add overlap penalty to GNN training loss
-- explore diffusion model for initial placement + GNN-guided SA refinement
-- benchmark against Cypress GPU-accelerated approach
+### phase 4: scale up on Colab (in progress)
+- scale training: 50 rollouts × 200 epochs on GPU/TPU (vs 10 × 80 local)
+- 5x more training data should address underfitting on quality prediction head
+- longer SA rollouts (T: 15→0.1 instead of 10→2) for better overlap resolution examples
+- cross-board pre-trained model: train on all 12 boards jointly, evaluate transfer
+- add overlap-aware penalty directly to GNN training loss
+- try TPU for boards with >50 components where attention matrix gets large
+- save results to Google Drive for persistence across sessions
+
+### phase 5: next steps (future work)
+- scrape 500+ KiCad PCBs from GitHub for transferable model
+- diffusion hybrid: diffusion for initial placement + GNN-guided SA refinement
+- benchmark against Cypress GPU-accelerated approach (ISPD 2025 Best Paper)
 - integrate into Trace's autoplacer pipeline
 
 ## key decisions
