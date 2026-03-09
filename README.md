@@ -1,6 +1,6 @@
 # learned-pcb-placement
 
-GNN-guided simulated annealing for PCB component placement. We train a Graph Attention Network on SA rollout data to learn which components to move and where, then use these predictions to bias the SA search. Early results show up to 9.2% HPWL reduction on real KiCad designs.
+GNN-guided simulated annealing for PCB component placement. We train a Graph Attention Network on SA rollout data to learn which components to move and where, then use these predictions to bias the SA search. Early results show up to 9.2% HPWL reduction on KiCad designs.
 
 **Paper:** [adekoya2026_gat_pcb_placement.pdf](adekoya2026_gat_pcb_placement.pdf)
 
@@ -41,7 +41,7 @@ KiCad .kicad_pcb
 
 ## Results
 
-Evaluated on 12 real KiCad PCBs (5–94 components) parsed directly from `.kicad_pcb` files, sourced from open-source hardware on GitHub.
+Evaluated on 12 KiCad PCBs (5–94 components) parsed directly from `.kicad_pcb` files, sourced from open-source hardware on GitHub.
 
 | Board | Components | Nets | SA HPWL | GNN HPWL | HPWL Δ | SA Cost | GNN Cost |
 |-------|-----------|------|---------|----------|--------|---------|----------|

@@ -9,7 +9,7 @@ a graph attention network trained on short SA rollouts can learn placement heuri
 ## experiment plan
 
 ### phase 1: baselines (done)
-- parse real KiCad PCBs (stickhub: 94 components, rp2040: 69 components)
+- parse KiCad PCBs (stickhub: 94 components, rp2040: 69 components)
 - implement vectorized cost functions (HPWL, overlap, boundary)
 - run baseline SA with random moves
 - run SA from spectral initialization (graph Laplacian Fiedler vectors)
@@ -23,7 +23,7 @@ a graph attention network trained on short SA rollouts can learn placement heuri
 - evaluate GNN-guided SA vs baselines on HPWL, overlap, total cost
 
 ### phase 3: analysis (done)
-- evaluated on 12 real-world KiCad PCBs (5–94 components)
+- evaluated on 12 KiCad PCBs (5–94 components)
 - GNN achieves lower HPWL on 4/12 boards (stickhub -9.2%, snapvcc -21.6%, pluto_watch -3.4%, tomu -1.4%)
 - snapvcc: GNN wins on total cost too (118.2 vs 136.5)
 - overlap remains primary bottleneck — quality head R² ≈ 0.001–0.079 across all boards
