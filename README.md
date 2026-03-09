@@ -41,41 +41,45 @@ KiCad .kicad_pcb
 
 ## Results
 
-Evaluated on real KiCad PCBs parsed directly from `.kicad_pcb` files.
+Evaluated on 12 real KiCad PCBs (5–94 components) parsed directly from `.kicad_pcb` files, sourced from open-source hardware on GitHub.
 
-### stickhub (94 components, 45 nets, 24.6×50.0mm)
+| Board | Components | Nets | SA HPWL | GNN HPWL | HPWL Δ | SA Cost | GNN Cost |
+|-------|-----------|------|---------|----------|--------|---------|----------|
+| stickhub | 94 | 45 | 1125.9 | **1022.1** | **-9.2%** | 1127.8 | 1757.3 |
+| rp2040_debugger | 69 | 55 | 1248.8 | 1375.4 | +10.1% | 1251.1 | 1464.6 |
+| motor_controller | 51 | 36 | 883.2 | 918.4 | +4.0% | 883.5 | 1116.6 |
+| keyboard_rev0 | 37 | 46 | 3086.2 | 4228.8 | +37.0% | 8459.2 | 10468.6 |
+| pluto_watch | 37 | 52 | 867.1 | **838.0** | **-3.4%** | 867.2 | 862.0 |
+| kitchen_timer | 35 | 31 | 605.9 | 828.4 | +36.7% | 611.1 | 935.4 |
+| rgb_to_hdmi | 32 | 32 | 721.9 | 776.8 | +7.6% | 723.5 | 865.7 |
+| snapvcc | 26 | 8 | 136.4 | **106.9** | **-21.6%** | 136.5 | 118.2 |
+| dali_stm32 | 22 | 33 | 572.5 | 721.0 | +25.9% | 572.5 | 760.6 |
+| mmdvm_hotspot | 21 | 29 | 839.7 | 1033.5 | +23.1% | 840.0 | 1606.8 |
+| tomu | 17 | 17 | 176.5 | **174.1** | **-1.4%** | 176.5 | 222.7 |
+| m2sata | 5 | 17 | 200.1 | 410.9 | +105.3% | 200.1 | 411.7 |
 
-| Method | Cost | HPWL (mm) | Overlap | Time |
-|--------|------|-----------|---------|------|
-| Original | 8652.5 | 748.3 | 789.82 | — |
-| SA (baseline) | **1127.8** | 1125.9 | **0.08** | 59s |
-| SA (spectral) | 1653.4 | 1029.6 | 11.28 | 60s |
-| **SA+GNN (ours)** | 1757.3 | **1022.1** | 32.80 | 197s |
+**Key findings:**
+- GNN achieves lower HPWL on **4 out of 12 boards** (stickhub -9.2%, snapvcc -21.6%, pluto_watch -3.4%, tomu -1.4%)
+- On snapvcc (26 components), GNN also wins on **total cost** (118.2 vs 136.5), with overlap penalty of only 1.13
+- Overlap remains the primary bottleneck — the quality prediction head R² is low across all boards
+- GNN acceptance rates are consistently higher (80-99%) vs baseline SA (50-93%), confirming the network proposes structurally meaningful moves
+- Per-board training with just 10 SA rollouts (~3-20s) — no pre-training, no large dataset
 
-### rp2040_debugger (69 components, 55 nets, 60.0×52.4mm)
-
-| Method | Cost | HPWL (mm) | Overlap | Time |
-|--------|------|-----------|---------|------|
-| Original | 3795.8 | 1208.7 | 258.71 | — |
-| SA (baseline) | **1251.1** | 1248.8 | **0.13** | 51s |
-| SA (spectral) | 1539.4 | 1484.4 | 0.03 | 39s |
-| **SA+GNN (ours)** | 1464.6 | **1375.4** | 6.01 | 159s |
-
-GNN-guided SA achieves the lowest HPWL on both boards. The GNN learns meaningful placement heuristics from just 10 SA rollouts (~20s of data collection). Overlap resolution is the current bottleneck — the quality head R² is low, leaving room for significant improvement with more training data and longer rollouts.
-
-![Convergence](results/convergence_stickhub.png)
-![Training](results/training_stickhub.png)
 ![Cross-board comparison](results/cross_board.png)
+![Convergence (stickhub)](results/convergence_stickhub.png)
+![Training (stickhub)](results/training_stickhub.png)
 
 ## Quick Start
 
 ```bash
 pip install torch numpy matplotlib
-python3 learn.py data/stickhub.kicad_pcb       # runs full experiment
-python3 graphs.py                                # generates all plots
+python3 learn.py data/stickhub.kicad_pcb       # single board experiment
+python3 graphs.py                                # generates all plots from results/
 ```
 
-Requires Python 3.10+ and PyTorch with MPS (Apple Silicon) or CPU fallback.
+Or run on Google Colab with GPU: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/elcruzo/learned-pcb-placement/blob/main/colab.ipynb)
+
+Requires Python 3.10+ and PyTorch with CUDA, MPS (Apple Silicon), or CPU fallback.
 
 ## Files
 

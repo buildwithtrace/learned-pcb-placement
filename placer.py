@@ -103,7 +103,9 @@ def parse_kicad_pcb(path: str) -> Board:
             net_map[int(node[1])] = Net(idx=int(node[1]), name=node[2])
 
     components = []
-    for fp in find_nodes(tree, 'footprint'):
+    # KiCad v6+ uses 'footprint', v5 and earlier use 'module'
+    footprints = find_nodes(tree, 'footprint') + find_nodes(tree, 'module')
+    for fp in footprints:
         if len(fp) < 2:
             continue
         at_node = find_first(fp, 'at')
