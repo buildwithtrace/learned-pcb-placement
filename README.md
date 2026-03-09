@@ -150,7 +150,7 @@ This is early research. The GNN learns wirelength optimization but underfits on 
 
 - [Ayomide Adekoya](https://github.com/elcruzo)
 - [Jeff Allo](https://github.com/jeff4444)
-- [Olu Afolabi](https://github.com/oluafolabi)
+- [Olu Afolabi](https://github.com/oluuafolabii)
 
 Built by [Trace](https://buildwithtrace.com) — an AI-native PCB design tool.
 Also mirrored at [buildwithtrace/learned-pcb-placement](https://github.com/buildwithtrace/learned-pcb-placement).
