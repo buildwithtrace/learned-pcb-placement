@@ -1,6 +1,6 @@
 # learned-pcb-placement
 
-GNN-guided simulated annealing for PCB component placement. We train a Graph Attention Network on SA rollout data to learn which components to move and where, then use these predictions to bias the SA search. Early results show up to 9.2% HPWL reduction on KiCad designs.
+GNN-guided simulated annealing for PCB component placement. We train a Graph Attention Network on SA rollout data to learn which components to move and where, then use these predictions to bias the SA search. Early results show up to 9.2% HPWL reduction on KiCad designs. Dataset includes production boards up to 681 components (Antmicro Jetson Orin baseboard, HackRF One SDR).
 
 **Paper:** [adekoya2026_gat_pcb_placement.pdf](adekoya2026_gat_pcb_placement.pdf)
 
@@ -41,7 +41,7 @@ KiCad .kicad_pcb
 
 ## Results
 
-Evaluated on 12 KiCad PCBs (5–94 components) parsed directly from `.kicad_pcb` files, sourced from open-source hardware on GitHub.
+Evaluated on 12 KiCad PCBs (5 to 94 components) parsed directly from `.kicad_pcb` files, sourced from open-source hardware on GitHub. Three additional production boards (207 to 681 components) are included in the dataset for GPU/TPU evaluation via Colab.
 
 | Board | Components | Nets | SA HPWL | GNN HPWL | HPWL Δ | SA Cost | GNN Cost |
 |-------|-----------|------|---------|----------|--------|---------|----------|
@@ -81,6 +81,28 @@ Or run scaled experiments on Google Colab (50 rollouts, 200 epochs, GPU/TPU): [!
 
 Requires Python 3.10+ and PyTorch with CUDA, TPU (via torch_xla), MPS (Apple Silicon), or CPU fallback.
 
+## Data
+
+15 KiCad PCB designs from open-source hardware, spanning hobby projects to production carrier boards:
+
+| Board | Components | Nets | Source |
+|-------|-----------|------|--------|
+| jetson_orin_baseboard | 681 | 644 | [Antmicro](https://github.com/antmicro/jetson-orin-baseboard) (NVIDIA Jetson carrier) |
+| hackrf_one | 437 | 319 | [Great Scott Gadgets](https://github.com/greatscottgadgets/hackrf) (production SDR) |
+| artix_dc_scm | 207 | 224 | [Antmicro](https://github.com/antmicro/artix-dc-scm) (FPGA server mgmt) |
+| stickhub | 94 | 45 | USB hub |
+| rp2040_debugger | 69 | 55 | Raspberry Pi debug probe |
+| motor_controller | 51 | 36 | H-bridge motor driver |
+| keyboard_rev0 | 37 | 46 | Mechanical keyboard controller |
+| pluto_watch | 37 | 52 | Casio F-91W replacement |
+| kitchen_timer | 35 | 31 | MCU countdown timer |
+| rgb_to_hdmi | 32 | 32 | Video signal converter |
+| snapvcc | 26 | 8 | Compact power supply |
+| dali_stm32 | 22 | 33 | DALI lighting interface |
+| mmdvm_hotspot | 21 | 29 | Digital voice modem |
+| tomu | 17 | 17 | USB-insertable ARM MCU |
+| m2sata | 5 | 17 | M.2 to SATA adapter |
+
 ## Files
 
 | File | Purpose |
@@ -107,12 +129,12 @@ All serious placement research targets VLSI/ASIC. PCB placement is wide open.
 | [TransPlace](https://arxiv.org/abs/2501.05667) (Cheng et al.) | KDD 2025 | Transferable GNN global placement |
 | [ChipDiffusion](https://arxiv.org/abs/2407.12282) (Vint et al.) | ICML 2025 | Diffusion for zero-shot chip placement |
 | [DiffPlace](https://arxiv.org/abs/2510.15897) (Liu et al.) | 2025 | Conditional diffusion for VLSI with constraints |
-| [Cypress](https://research.nvidia.com/labs/electronic-design-automation/) (Lu et al.) | ISPD 2025 | **VLSI-inspired PCB placement with GPU acceleration** (Best Paper) |
+| [Cypress](https://www.csl.cornell.edu/~zhiruz/pdfs/cypress-ispd2025.pdf) (Lu et al.) | ISPD 2025 | **VLSI-inspired PCB placement with GPU acceleration** (Best Paper) |
 | [C3PO](https://research.nvidia.com/labs/electronic-design-automation/) (Lu et al.) | ASP-DAC 2026 | Commercial-quality global placement |
 | [Netlistify](https://research.nvidia.com/labs/electronic-design-automation/) (Huang et al.) | MLCAD 2025 | Schematics to netlists with deep learning (Best Artifact) |
 | [PCB-Bench](https://openreview.net/forum?id=Q5QLu7XTWx) | ICLR 2026 | First LLM benchmark for PCB tasks |
-| [Component Centric Placement](https://arxiv.org/) | arXiv 2026 | PCB-specific graph representations |
-| [GNN for PCB Schematics](https://arxiv.org/) | 2025 | Auto-adding decoupling caps via graph prediction |
+| [Component Centric Placement](https://arxiv.org/abs/2602.23540) | arXiv 2026 | PCB-specific graph representations |
+| [GNN for PCB Schematics](https://arxiv.org/abs/2502.14600) | 2025 | Auto-adding decoupling caps via graph prediction |
 
 ## What's Next
 
@@ -128,7 +150,7 @@ This is early research. The GNN learns wirelength optimization but underfits on 
 
 - [Ayomide Adekoya](https://github.com/elcruzo)
 - [Jeff Allo](https://github.com/jeff4444)
-- [Olu Afolabi](https://github.com/oluuafolabi)
+- [Olu Afolabi](https://github.com/oluafolabi)
 
 Built by [Trace](https://buildwithtrace.com) — an AI-native PCB design tool.
 Also mirrored at [buildwithtrace/learned-pcb-placement](https://github.com/buildwithtrace/learned-pcb-placement).
